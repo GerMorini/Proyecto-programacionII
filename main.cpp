@@ -9,6 +9,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    /* TODO:
+        hacer sistema de inicio de sesión
+        * permitir elegir entre autor [1] o usuario [2]
+        * ingresar nombre
+    */
+
     int opt;
     NEWS medio;
 
