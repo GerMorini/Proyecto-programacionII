@@ -1,4 +1,4 @@
-** AUTORES
+* AUTORES
 
 * Iván
 * German
