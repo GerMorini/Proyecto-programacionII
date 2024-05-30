@@ -18,6 +18,8 @@ class Arreglo {
             arr = new T[10];
         }
 
+        int length() {return len;}
+
         void operator+(T elem) {
             arr[len++] = elem;
         }
@@ -97,6 +99,8 @@ class Noticia {
             comentarios + com;
         }
 
+        int getCantidadComentarios() {return comentarios.length();}
+
         string get() {
             return titulo;
         }
@@ -111,6 +115,8 @@ class NEWS {
         NEWS() {
             // TODO: acá se van a cargar autores y noticias desde archivos
         }
+
+        Arreglo<Noticia> getNoticias() {return noticias;}
 
         bool publicar(Noticia n) {
             if(noticias(n.get())) return false;
