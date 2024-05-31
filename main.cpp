@@ -42,7 +42,7 @@ void registrarUsuario(NEWS &news) {
 
 void cargarNoticia(NEWS &news, Autor &autor) {
     string titulo, detalle, autorNombre;
-    int dia, mes, anio, autorDni;
+    int dia, mes, anio;
 
     cout << "Ingrese el título de la noticia: ";
     cin.ignore();
@@ -65,10 +65,10 @@ void cargarNoticia(NEWS &news, Autor &autor) {
     }
 }
 
-void registrarComentario(NEWS &news, Usuario &user, int n) {
+void registrarComentario(NEWS &news, Usuario &user) {
     cout << "Elegí la noticia a comentar: " << endl;
     for (int i = 0; i < news.getNoticias().length(); i++){
-        cout << "[" << i+1 << "] " << news.getNoticias()[i].get() << endl;
+        cout << "[" << i+1 << "] " << news.getNoticias()[i].getTitulo() << endl;
     }
     int op;
     cin >> op;
@@ -88,7 +88,7 @@ void listarNoticiasPorAno(NEWS &news, int anio) {
     cout << "Noticias publicadas en el año " << anio << endl;
     for (int i = 0; i < news.getNoticias().length(); ++i) {
         if (news.getNoticias()[i].getPublicado().anio == anio) {
-            cout << news.getNoticias()[i].get() << "\n";
+            cout << news.getNoticias()[i].getTitulo() << "\n";
         }
     }
 }
@@ -103,14 +103,14 @@ void listarNoticiasUltimoMes(NEWS &news) {
     for (int i = 0; i < news.getNoticias().length(); ++i) {
         Fecha fecha = news.getNoticias()[i].getPublicado();
         if (fecha.anio == currentYear && fecha.mes == currentMonth) {
-            cout << news.getNoticias()[i].get() << "\n";
+            cout << news.getNoticias()[i].getTitulo() << "\n";
         }
     }
 }
 
 void mostrarNoticiaConComentarios(NEWS &news, int noticiaId) {
     Noticia noticia = news.getNoticias()[noticiaId];
-    cout << "Título: " << noticia.get() << "\n";
+    cout << "Título: " << noticia.getTitulo() << "\n";
     cout << "Comentarios:\n";
     for (int i = 0; i < noticia.getCantidadComentarios(); ++i) {
         cout << noticia.getComentarios()[i].getTexto() << "\n";
@@ -120,8 +120,8 @@ void mostrarNoticiaConComentarios(NEWS &news, int noticiaId) {
 void listarArticulosPorAutor(NEWS &news, string autorNombre) {
     cout << "Artículos publicados por " << autorNombre << ":\n";
     for (int i = 0; i < news.getNoticias().length(); ++i) {
-        if (news.getNoticias()[i].getAutor().get() == autorNombre) {
-            cout << news.getNoticias()[i].get() << "\n";
+        if (news.getNoticias()[i].getAutor().getNombre() == autorNombre) {
+            cout << news.getNoticias()[i].getTitulo() << "\n";
         }
     }
 }
@@ -129,6 +129,8 @@ void listarArticulosPorAutor(NEWS &news, string autorNombre) {
 int main() {
     NEWS news;
     int option;
+    Autor autor;
+    Usuario user;
 
     while (true) {
         cout << "\nMenu:\n";
@@ -152,11 +154,10 @@ int main() {
                 registrarUsuario(news);
                 break;
             case 3:
-                cargarNoticia(news);
+                cargarNoticia(news, autor);
                 break;
             case 4:
-                
-                registrarComentario(news);
+                registrarComentario(news, user);
                 break;
             case 5: {
                 int anio;

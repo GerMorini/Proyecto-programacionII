@@ -13,27 +13,32 @@ template<class T>
 class Arreglo {
     private:
         int len;
+        int size;
         T* arr;
     public:
         Arreglo() {
             len = 0;
-            arr = new T[20];
+            size = 20;
+            arr = new T[size];
         }
 
         int length() {return len;}
 
         void operator+(T elem) {
+            if (len >= size) {
+                size += 20;
+                T* new_arr = new T[size];
+
+                for (int i = 0; i < len; i++) {
+                    new_arr[i] = arr[i];
+                }
+
+                arr = new_arr;
+            }
+
             arr[len++] = elem;
         }
 
-        bool operator()(string str) {
-            for (T* i = &arr[0]; i < &arr[0]+len; i++) {
-                if (i->get() == str) return true;
-            }
-
-            return false;
-        }
-        
         T operator[](int n) {
             return arr[n];
         }
@@ -47,9 +52,10 @@ class Persona {
         Persona() {};
         Persona(string _nombre, int _dni) : nombre(_nombre), dni(_dni) {};
 
-        string get() {
+        string getNombre() {
             return nombre;
         }
+
         int getDNI(){
             return dni;
         }
@@ -118,15 +124,9 @@ class Noticia {
         Fecha getPublicado() {return publicado;}
         Autor getAutor() {return autor;}
         Arreglo<Comentario> getComentarios() {return comentarios;}
+
+        void comentar(Comentario com) {comentarios + com;}
         int getCantidadComentarios() {return comentarios.length();}
-
-        void comentar(Comentario com) {
-            comentarios + com;
-        }
-
-        string get() {
-            return titulo;
-        }
 };
 
 class FileOpenException : public exception {
@@ -136,6 +136,8 @@ class FileOpenException : public exception {
         FileOpenException(string _msg) {
             msg = "no se pudo abrir el archivo '" + _msg + "'";
         }
+
+        string gerMessage() {return msg;}
 };
 
 class RecordNotFound : public exception {
@@ -145,6 +147,8 @@ class RecordNotFound : public exception {
         RecordNotFound(string _msg) {
             msg = "no se encontró registro para el dato '" + _msg + "'";
         }
+        
+        string gerMessage() {return msg;}
 };
 
 class Data_manager {
@@ -160,76 +164,77 @@ class Data_manager {
         string NEWS_PATH = "noticias.csv";
 
         void cargar_usuarios() {
-            ifstream users_file(USERS_PATH);
-            if(!users_file) throw FileOpenException(USERS_PATH);
+            ifstream file(USERS_PATH);
+            if(!file) throw FileOpenException(USERS_PATH);
 
             string nombre;
             int dni, edad;
             
-            while(!users_file.eof()) {
-                users_file >> nombre;
-                users_file >> edad;
-                users_file >> dni;
+            while(!file.eof()) {
+                file >> nombre;
+                file >> edad;
+                file >> dni;
 
-                usuarios + Usuario(nombre, dni, edad);
+                if (dni != usuarios[usuarios.length()-1].getDNI()) usuarios + Usuario(nombre, dni, edad);
             }
-            users_file.close();
+            file.close();
         }
 
         void cargar_autores() {
-            ifstream authors_file(AUTHORS_PATH);
-            if(!authors_file) throw FileOpenException(AUTHORS_PATH);
+            ifstream file(AUTHORS_PATH);
+            if(!file) throw FileOpenException(AUTHORS_PATH);
 
             string nombre, medio;
             int dni;
             
-            while(!authors_file.eof()) {
-                authors_file >> nombre;
-                authors_file >> medio;
-                authors_file >> dni;
+            while(!file.eof()) {
+                file >> nombre;
+                file >> medio;
+                file >> dni;
 
-                autores + Autor(nombre, dni, medio);
+                if (dni != autores[autores.length()-1].getDNI()) autores + Autor(nombre, dni, medio);
             }
-            authors_file.close();
+            file.close();
         }
 
         void cargar_comentarios() {
-            ifstream comments_file(COMMENTS_PATH);
-            if(!comments_file) throw FileOpenException(COMMENTS_PATH);
+            ifstream file(COMMENTS_PATH);
+            if(!file) throw FileOpenException(COMMENTS_PATH);
 
             string texto;
             int numero, dni_usuario;
             
-            while(!comments_file.eof()) {
-                comments_file >> numero;
-                comments_file >> texto;
-                comments_file >> dni_usuario;
+            while(!file.eof()) {
+                file >> numero;
+                file >> texto;
+                file >> dni_usuario;
 
-                comentarios + Comentario(numero, texto, buscar_usuario(dni_usuario));
+                if (dni_usuario != comentarios[comentarios.length()-1].getUsuario().getDNI()) comentarios + Comentario(numero, texto, buscar_usuario(dni_usuario));
             }
-            comments_file.close();
+            file.close();
         }
 
         void cargar_noticias() {
-            ifstream news_file(NEWS_PATH);
-            if(!news_file) throw FileOpenException(NEWS_PATH);
+            ifstream file(NEWS_PATH);
+            if(!file) throw FileOpenException(NEWS_PATH);
 
-            string titulo, detalle;
+            string titulo, detalle, line;
             Fecha publicacion;
             int dni_autor, numero;
-            
-            while(!news_file.eof()) {
-                news_file >> titulo;
-                news_file >> detalle;
-                news_file >> publicacion.dia;
-                news_file >> publicacion.mes;
-                news_file >> publicacion.anio;
-                news_file >> dni_autor;
-                news_file >> numero;
 
-                noticias + Noticia(titulo, detalle, publicacion, buscar_autor(dni_autor), buscar_comentario(numero));
+            // FIXME:
+            while(!file.eof()) {
+                file >> titulo;
+                file >> detalle;
+                file >> publicacion.dia;
+                file >> publicacion.mes;
+                file >> publicacion.anio;
+                file >> dni_autor;
+                file >> numero;
+
+                if (titulo != noticias[noticias.length()-1].getTitulo()) noticias + Noticia(titulo, detalle, publicacion, buscar_autor(dni_autor), buscar_comentario(numero));
             }
-            news_file.close();
+            file.close();
         }
 
         void guardar_usuarios() {
@@ -237,9 +242,9 @@ class Data_manager {
             if(!file.is_open()) throw FileOpenException(USERS_PATH);
 
             for (int i = 0; i < usuarios.length(); i++) {
-                file << usuarios[i].get()
-                << usuarios[i].getEdad()
-                << usuarios[i].getDNI()
+                file << usuarios[i].getNombre() << " "
+                << usuarios[i].getEdad() << " "
+                << usuarios[i].getDNI() << " "
                 << endl;
             }
 
@@ -251,9 +256,9 @@ class Data_manager {
             if(!file.is_open()) throw FileOpenException(AUTHORS_PATH);
 
             for (int i = 0; i < autores.length(); i++) {
-                file << autores[i].get()
-                << autores[i].getMedio()
-                << autores[i].getDNI()
+                file << autores[i].getNombre() << " "
+                << autores[i].getMedio() << " "
+                << autores[i].getDNI() << " "
                 << endl;
             }
 
@@ -265,9 +270,9 @@ class Data_manager {
             if(!file.is_open()) throw FileOpenException(COMMENTS_PATH);
 
             for (int i = 0; i < comentarios.length(); i++) {
-                file << comentarios[i].getNumero()
-                << comentarios[i].getTexto()
-                << comentarios[i].getUsuario().getDNI()
+                file << comentarios[i].getNumero() << " "
+                << comentarios[i].getTexto() << " "
+                << comentarios[i].getUsuario().getDNI() << " "
                 << endl;
             }
 
@@ -279,12 +284,12 @@ class Data_manager {
             if(!file.is_open()) throw FileOpenException(NEWS_PATH);
 
             for (int i = 0; i < noticias.length(); i++) {
-                file << noticias[i].getTitulo()
-                << noticias[i].getDetalle()
-                << noticias[i].getPublicado().dia
-                << noticias[i].getPublicado().mes
-                << noticias[i].getPublicado().anio
-                << noticias[i].getAutor().getDNI()
+                file << noticias[i].getTitulo() << " "
+                << noticias[i].getDetalle() << " "
+                << noticias[i].getPublicado().dia << " "
+                << noticias[i].getPublicado().mes << " "
+                << noticias[i].getPublicado().anio << " "
+                << noticias[i].getAutor().getDNI() << " "
                 << i
                 << endl;
             }
@@ -327,27 +332,48 @@ class Data_manager {
             throw RecordNotFound(to_string(dni));
         }
 
-        bool aniadir_noticia(Noticia n) {
-            if(noticias(n.get())) return false;
+        Noticia buscar_noticia(string titulo) {
+            for (int i = 0; i < noticias.length(); i++) {
+                if(noticias[i].getTitulo() == titulo) return noticias[i];
+            }
 
-            noticias + n;
-            return true;
+            throw RecordNotFound(titulo);
+        }
+
+        // TODO: no se que tan bien implementado está esto :/
+        bool aniadir_noticia(Noticia n) {
+            try {
+                buscar_noticia(n.getTitulo());
+                return false;
+            } catch (RecordNotFound& e) {
+                noticias + n;
+                return true;
+            }
         }
 
         bool aniadir_usuario(Usuario u) {
-            if(usuarios(u.get())) return false;
-
-            usuarios + u;
-            return true;
+            try {
+                buscar_usuario(u.getDNI());
+                return false;
+            } catch (RecordNotFound& e) {
+                usuarios + u;
+                return true;
+            }
         }
 
         bool aniadir_autor(Autor a) {
-            if(autores(a.get())) return false;
-
-            autores + a;
-            return true;
+            try {
+                buscar_autor(a.getDNI());
+                return false;
+            } catch (RecordNotFound& e) {
+                autores + a;
+                return true;
+            }
         }
 
+        Arreglo<Usuario> getUsuarios() {return usuarios;}
+        Arreglo<Autor> getAutores() {return autores;}
+        Arreglo<Comentario> getComentarios() {return comentarios;}
         Arreglo<Noticia> getNoticias() {return noticias;}
 
         void guardar_cambios() {
