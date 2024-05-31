@@ -14,7 +14,7 @@ void registrarAutor(NEWS &news) {
     cout << "Ingrese el DNI del autor: ";
     cin >> dni;
 
-    Autor autor(medio, nombre, dni);
+    Autor autor(nombre, dni, medio);
     if (news.registrar_autor(autor)) {
         cout << "Autor registrado con éxito.\n";
     } else {
@@ -86,8 +86,8 @@ void registrarComentario(NEWS &news, Usuario &user, int n) {
 
 void listarNoticiasPorAno(NEWS &news, int anio) {
     cout << "Noticias publicadas en el año " << anio << endl;
-    for (int i = 0; i < news.getNoticias().size(); ++i) {
-        if (news.getNoticias()[i].getFecha().anio == anio) {
+    for (int i = 0; i < news.getNoticias().length(); ++i) {
+        if (news.getNoticias()[i].getPublicado().anio == anio) {
             cout << news.getNoticias()[i].get() << "\n";
         }
     }
@@ -100,8 +100,8 @@ void listarNoticiasUltimoMes(NEWS &news) {
     int currentYear = current->tm_year + 1900;
 
     cout << "Noticias publicadas el último mes:\n";
-    for (int i = 0; i < news.getNoticias().size(); ++i) {
-        Fecha fecha = news.getNoticias()[i].getFecha();
+    for (int i = 0; i < news.getNoticias().length(); ++i) {
+        Fecha fecha = news.getNoticias()[i].getPublicado();
         if (fecha.anio == currentYear && fecha.mes == currentMonth) {
             cout << news.getNoticias()[i].get() << "\n";
         }
@@ -112,14 +112,14 @@ void mostrarNoticiaConComentarios(NEWS &news, int noticiaId) {
     Noticia noticia = news.getNoticias()[noticiaId];
     cout << "Título: " << noticia.get() << "\n";
     cout << "Comentarios:\n";
-    for (int i = 0; i < noticia.getComentarios().size(); ++i) {
+    for (int i = 0; i < noticia.getCantidadComentarios(); ++i) {
         cout << noticia.getComentarios()[i].getTexto() << "\n";
     }
 }
 
 void listarArticulosPorAutor(NEWS &news, string autorNombre) {
     cout << "Artículos publicados por " << autorNombre << ":\n";
-    for (int i = 0; i < news.getNoticias().size(); ++i) {
+    for (int i = 0; i < news.getNoticias().length(); ++i) {
         if (news.getNoticias()[i].getAutor().get() == autorNombre) {
             cout << news.getNoticias()[i].get() << "\n";
         }
