@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <exception>
 #include <iostream>
 #include <fstream>
@@ -169,11 +170,12 @@ class Data_manager {
 
             string nombre;
             int dni, edad;
-            
+
             while(!file.eof()) {
-                file >> nombre;
                 file >> edad;
                 file >> dni;
+                file.ignore();
+                getline(file, nombre);
 
                 if (dni != usuarios[usuarios.length()-1].getDNI()) usuarios + Usuario(nombre, dni, edad);
             }
@@ -186,11 +188,12 @@ class Data_manager {
 
             string nombre, medio;
             int dni;
-            
+
             while(!file.eof()) {
-                file >> nombre;
-                file >> medio;
                 file >> dni;
+                file.ignore();
+                getline(file, nombre);
+                getline(file, medio);
 
                 if (dni != autores[autores.length()-1].getDNI()) autores + Autor(nombre, dni, medio);
             }
@@ -206,8 +209,9 @@ class Data_manager {
             
             while(!file.eof()) {
                 file >> numero;
-                file >> texto;
                 file >> dni_usuario;
+                file.ignore();
+                getline(file, texto);
 
                 if (dni_usuario != comentarios[comentarios.length()-1].getUsuario().getDNI()) comentarios + Comentario(numero, texto, buscar_usuario(dni_usuario));
             }
@@ -218,21 +222,21 @@ class Data_manager {
             ifstream file(NEWS_PATH);
             if(!file) throw FileOpenException(NEWS_PATH);
 
-            string titulo, detalle, line;
+            string titulo, detalle;
             Fecha publicacion;
             int dni_autor, numero;
 
-            // FIXME:
             while(!file.eof()) {
-                file >> titulo;
-                file >> detalle;
                 file >> publicacion.dia;
                 file >> publicacion.mes;
                 file >> publicacion.anio;
                 file >> dni_autor;
                 file >> numero;
+                file.ignore();
+                getline(file, titulo);
+                getline(file, detalle);
 
-                if (titulo != noticias[noticias.length()-1].getTitulo()) noticias + Noticia(titulo, detalle, publicacion, buscar_autor(dni_autor), buscar_comentario(numero));
+                if (titulo != noticias[noticias.length()-1].getTitulo()) noticias + Noticia(titulo, detalle, publicacion, buscar_autor(dni_autor), buscar_comentarios(numero));
             }
             file.close();
         }
@@ -242,10 +246,9 @@ class Data_manager {
             if(!file.is_open()) throw FileOpenException(USERS_PATH);
 
             for (int i = 0; i < usuarios.length(); i++) {
-                file << usuarios[i].getNombre() << " "
-                << usuarios[i].getEdad() << " "
+                file << usuarios[i].getEdad() << " "
                 << usuarios[i].getDNI() << " "
-                << endl;
+                << usuarios[i].getNombre() << endl;
             }
 
             file.close();
@@ -256,10 +259,9 @@ class Data_manager {
             if(!file.is_open()) throw FileOpenException(AUTHORS_PATH);
 
             for (int i = 0; i < autores.length(); i++) {
-                file << autores[i].getNombre() << " "
-                << autores[i].getMedio() << " "
-                << autores[i].getDNI() << " "
-                << endl;
+                file << autores[i].getDNI() << endl
+                << autores[i].getNombre() << endl
+                << autores[i].getMedio() << endl;
             }
 
             file.close();
@@ -271,9 +273,8 @@ class Data_manager {
 
             for (int i = 0; i < comentarios.length(); i++) {
                 file << comentarios[i].getNumero() << " "
-                << comentarios[i].getTexto() << " "
                 << comentarios[i].getUsuario().getDNI() << " "
-                << endl;
+                << comentarios[i].getTexto() << endl;
             }
 
             file.close();
@@ -284,14 +285,13 @@ class Data_manager {
             if(!file.is_open()) throw FileOpenException(NEWS_PATH);
 
             for (int i = 0; i < noticias.length(); i++) {
-                file << noticias[i].getTitulo() << " "
-                << noticias[i].getDetalle() << " "
-                << noticias[i].getPublicado().dia << " "
+                file << noticias[i].getPublicado().dia << " "
                 << noticias[i].getPublicado().mes << " "
                 << noticias[i].getPublicado().anio << " "
                 << noticias[i].getAutor().getDNI() << " "
-                << i
-                << endl;
+                << i+1 << endl
+                << noticias[i].getTitulo() << endl
+                << noticias[i].getDetalle() << endl;
             }
 
             file.close();
@@ -304,7 +304,7 @@ class Data_manager {
             cargar_noticias();
         }
 
-        Arreglo<Comentario> buscar_comentario(int numero) {
+        Arreglo<Comentario> buscar_comentarios(int numero) {
             Arreglo<Comentario> resultados;
 
             for (int i = 0; i < comentarios.length(); i++) {

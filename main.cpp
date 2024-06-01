@@ -4,6 +4,7 @@
 
 using namespace std;
 
+// TODO: preguntar si se puede usar cout acá
 void registrarAutor(NEWS &news) {
     string nombre, medio;
     int dni;

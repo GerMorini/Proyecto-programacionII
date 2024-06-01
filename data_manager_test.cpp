@@ -5,8 +5,9 @@
 using namespace std;
 
 void test_imprimir_datos() {
+    cout << "incio 1 " << endl;
     Data_manager dm;
-
+    cout << "incio 2 " << endl;
     // Imprimir usuarios
     cout << "Usuarios cargados:" << endl;
     for (int i = 0; i < dm.getUsuarios().length(); ++i) {
@@ -41,7 +42,7 @@ void test_imprimir_datos() {
 
 void test_aniadir_usuario() {
     Data_manager dm;
-    Usuario user1("SAMPLE_NEW_USER", 42042069, 69);
+    Usuario user1("SAMPLE NEW USER", 42042069, 69);
     assert(dm.aniadir_usuario(user1) == true);  // Usuario debería añadirse exitosamente
 
     // Intentar añadir el mismo usuario debería fallar
@@ -49,7 +50,7 @@ void test_aniadir_usuario() {
 
     // Verificar que el usuario fue añadido correctamente
     Usuario foundUser = dm.buscar_usuario(42042069);
-    assert(foundUser.getNombre() == "SAMPLE_NEW_USER");
+    assert(foundUser.getNombre() == "SAMPLE NEW USER");
     assert(foundUser.getEdad() == 69);
     assert(foundUser.getDNI() == 42042069);
     dm.guardar_cambios();
@@ -57,7 +58,7 @@ void test_aniadir_usuario() {
 
 void test_aniadir_autor() {
     Data_manager dm;
-    Autor autor1("NUEVO_AUTOR", 87654322, "RevistaZ");
+    Autor autor1("NUEVO AUTOR", 87654322, "Revista Z");
     assert(dm.aniadir_autor(autor1) == true);  // Autor debería añadirse exitosamente
 
     // Intentar añadir el mismo autor debería fallar
@@ -65,17 +66,17 @@ void test_aniadir_autor() {
 
     // Verificar que el autor fue añadido correctamente
     Autor foundAuthor = dm.buscar_autor(87654322);
-    assert(foundAuthor.getNombre() == "NUEVO_AUTOR");
+    assert(foundAuthor.getNombre() == "NUEVO AUTOR");
     assert(foundAuthor.getDNI() == 87654322);
-    assert(foundAuthor.getMedio() == "RevistaZ");
+    assert(foundAuthor.getMedio() == "Revista Z");
     dm.guardar_cambios();
 }
 
 void test_aniadir_noticia() {
     Data_manager dm;
     Fecha fecha = {1, 1, 2022};
-    Autor autor("CarlosGutierrez", 11223344, "DiarioY");
-    Noticia noticia("TituloNoticia", "Detalledelanoticia", fecha, autor);
+    Autor autor = dm.buscar_autor(11223344);
+    Noticia noticia("Titulo Noticia", "Detalle de la noticia", fecha, autor);
     
     assert(dm.aniadir_noticia(noticia) == true);  // Noticia debería añadirse exitosamente
 
@@ -83,15 +84,15 @@ void test_aniadir_noticia() {
     assert(dm.aniadir_noticia(noticia) == false);
 
     // Verificar que la noticia fue añadida correctamente
-    Noticia foundNews = dm.buscar_noticia("TituloNoticia");
-    assert(foundNews.getTitulo() == "TituloNoticia");
-    assert(foundNews.getDetalle() == "Detalledelanoticia");
+    Noticia foundNews = dm.buscar_noticia("Titulo Noticia");
+    assert(foundNews.getTitulo() == "Titulo Noticia");
+    assert(foundNews.getDetalle() == "Detalle de la noticia");
     assert(foundNews.getPublicado().dia == 1);
     assert(foundNews.getPublicado().mes == 1);
     assert(foundNews.getPublicado().anio == 2022);
-    assert(foundNews.getAutor().getNombre() == "CarlosGutierrez");
-    assert(foundNews.getAutor().getDNI() == 11223344);
-    assert(foundNews.getAutor().getMedio() == "DiarioY");
+    assert(foundNews.getAutor().getNombre() == autor.getNombre());
+    assert(foundNews.getAutor().getDNI() == autor.getDNI());
+    assert(foundNews.getAutor().getMedio() == autor.getMedio());
     dm.guardar_cambios();
 }
 
