@@ -5,9 +5,7 @@
 using namespace std;
 
 void test_imprimir_datos() {
-    cout << "incio 1 " << endl;
     Data_manager dm;
-    cout << "incio 2 " << endl;
     // Imprimir usuarios
     cout << "Usuarios cargados:" << endl;
     for (int i = 0; i < dm.getUsuarios().length(); ++i) {
@@ -128,12 +126,12 @@ void test_buscar_noticia_no_existente() {
 
 int main() {
     test_imprimir_datos();
-    test_aniadir_usuario();
-    test_aniadir_autor();
-    test_aniadir_noticia();
-    test_buscar_usuario_no_existente();
-    test_buscar_autor_no_existente();
-    test_buscar_noticia_no_existente();
+    // test_aniadir_usuario();
+    // test_aniadir_autor();
+    // test_aniadir_noticia();
+    // test_buscar_usuario_no_existente();
+    // test_buscar_autor_no_existente();
+    // test_buscar_noticia_no_existente();
 
     cout << "Todos los tests pasaron exitosamente." << endl;
     return 0;

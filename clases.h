@@ -34,6 +34,7 @@ class Arreglo {
                     new_arr[i] = arr[i];
                 }
 
+                delete[] arr;
                 arr = new_arr;
             }
 
@@ -41,6 +42,7 @@ class Arreglo {
         }
 
         T operator[](int n) {
+            if (n < 0) n = 0;
             return arr[n];
         }
 };

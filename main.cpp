@@ -1,17 +1,23 @@
 #include <iostream>
 #include <ctime>
+#include <string>
 #include "clases.h"
 
 using namespace std;
 
 // TODO: preguntar si se puede usar cout acá
+// TODO: hay que validar las entradas
 void registrarAutor(NEWS &news) {
     string nombre, medio;
     int dni;
+
     cout << "Ingrese el nombre del autor: ";
-    cin >> nombre;
+    cin.ignore();
+    getline(cin, nombre);
+
     cout << "Ingrese el medio del autor: ";
-    cin >> medio;
+    getline(cin, medio);
+
     cout << "Ingrese el DNI del autor: ";
     cin >> dni;
 
@@ -42,7 +48,7 @@ void registrarUsuario(NEWS &news) {
 }
 
 void cargarNoticia(NEWS &news, Autor &autor) {
-    string titulo, detalle, autorNombre;
+    string titulo, detalle;
     int dia, mes, anio;
 
     cout << "Ingrese el título de la noticia: ";
@@ -89,7 +95,7 @@ void listarNoticiasPorAno(NEWS &news, int anio) {
     cout << "Noticias publicadas en el año " << anio << endl;
     for (int i = 0; i < news.getNoticias().length(); ++i) {
         if (news.getNoticias()[i].getPublicado().anio == anio) {
-            cout << news.getNoticias()[i].getTitulo() << "\n";
+            cout << "[" << i+1 << "]"<< news.getNoticias()[i].getTitulo() << "\n";
         }
     }
 }
@@ -129,11 +135,12 @@ void listarArticulosPorAutor(NEWS &news, string autorNombre) {
 
 int main() {
     NEWS news;
+    Autor autor_registrado;
+    Usuario usuario_registrado;
     int option;
-    Autor autor;
-    Usuario user;
 
     while (true) {
+        // news.test_imprimir_datos();
         cout << "\nMenu:\n";
         cout << "1. Registro de Autores\n";
         cout << "2. Registro de Usuarios\n";
@@ -155,10 +162,10 @@ int main() {
                 registrarUsuario(news);
                 break;
             case 3:
-                cargarNoticia(news, autor);
+                cargarNoticia(news, autor_registrado);
                 break;
             case 4:
-                registrarComentario(news, user);
+                registrarComentario(news, usuario_registrado);
                 break;
             case 5: {
                 int anio;
