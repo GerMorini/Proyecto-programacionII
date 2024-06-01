@@ -25,7 +25,7 @@ class Arreglo {
 
         int length() {return len;}
 
-        void operator+(T elem) {
+        bool operator+(T elem) {
             if (len >= size) {
                 size += 20;
                 T* new_arr = new T[size];
@@ -38,12 +38,25 @@ class Arreglo {
                 arr = new_arr;
             }
 
-            arr[len++] = elem;
+            if (not (*this ^ elem)) {
+                arr[len++] = elem;
+                return true;
+            }
+
+            return false;
         }
 
         T operator[](int n) {
             if (n < 0) n = 0;
             return arr[n];
+        }
+
+        bool operator^(T elem) {
+            for (int i = 0; i < len; i++) {
+                if (arr[i] == elem) return true;            
+            }
+            
+            return false;
         }
 };
 
@@ -61,6 +74,10 @@ class Persona {
 
         int getDNI(){
             return dni;
+        }
+
+        bool operator==(Persona& p) {
+            return dni == p.dni;
         }
 };
 
@@ -96,6 +113,10 @@ class Comentario {
         int getNumero() {return numero;}
         string getTexto() {return texto;}
         Usuario getUsuario() {return usuario;}
+
+        bool operator==(Comentario& com) {
+            return texto == com.texto;
+        }
 };
 
 class Noticia {
@@ -104,6 +125,7 @@ class Noticia {
         Fecha publicado;
         Autor autor;
         Arreglo<Comentario> comentarios;
+        
     public:
         Noticia() {};
         Noticia(string _titulo, string _detalle, Fecha _publicacion, Autor _autor) {
@@ -128,8 +150,15 @@ class Noticia {
         Autor getAutor() {return autor;}
         Arreglo<Comentario> getComentarios() {return comentarios;}
 
-        void comentar(Comentario com) {comentarios + com;}
+        void SetFecha(Fecha a){publicado = a;}
+        void comentar(Comentario com) {
+            comentarios + com;
+        }
         int getCantidadComentarios() {return comentarios.length();}
+
+        bool operator==(Noticia& n) {
+            return titulo == n.titulo;
+        }
 };
 
 class FileOpenException : public exception {
@@ -140,7 +169,7 @@ class FileOpenException : public exception {
             msg = "no se pudo abrir el archivo '" + _msg + "'";
         }
 
-        string gerMessage() {return msg;}
+        string getMessage() {return msg;}
 };
 
 class RecordNotFound : public exception {
@@ -151,7 +180,7 @@ class RecordNotFound : public exception {
             msg = "no se encontró registro para el dato '" + _msg + "'";
         }
         
-        string gerMessage() {return msg;}
+        string getMessage() {return msg;}
 };
 
 class Data_manager {
@@ -179,7 +208,8 @@ class Data_manager {
                 file.ignore();
                 getline(file, nombre);
 
-                if (dni != usuarios[usuarios.length()-1].getDNI()) usuarios + Usuario(nombre, dni, edad);
+                // if (dni != usuarios[usuarios.length()-1].getDNI()) usuarios + Usuario(nombre, dni, edad);
+                usuarios + Usuario(nombre, dni, edad);
             }
             file.close();
         }
@@ -197,7 +227,8 @@ class Data_manager {
                 getline(file, nombre);
                 getline(file, medio);
 
-                if (dni != autores[autores.length()-1].getDNI()) autores + Autor(nombre, dni, medio);
+                // if (dni != autores[autores.length()-1].getDNI()) autores + Autor(nombre, dni, medio);
+                autores + Autor(nombre, dni, medio);
             }
             file.close();
         }
@@ -215,7 +246,8 @@ class Data_manager {
                 file.ignore();
                 getline(file, texto);
 
-                if (dni_usuario != comentarios[comentarios.length()-1].getUsuario().getDNI()) comentarios + Comentario(numero, texto, buscar_usuario(dni_usuario));
+                // if (dni_usuario != comentarios[comentarios.length()-1].getUsuario().getDNI()) comentarios + Comentario(numero, texto, buscar_usuario(dni_usuario));
+                comentarios + Comentario(numero, texto, buscar_usuario(dni_usuario));
             }
             file.close();
         }
@@ -238,7 +270,8 @@ class Data_manager {
                 getline(file, titulo);
                 getline(file, detalle);
 
-                if (titulo != noticias[noticias.length()-1].getTitulo()) noticias + Noticia(titulo, detalle, publicacion, buscar_autor(dni_autor), buscar_comentarios(numero));
+                // if (titulo != noticias[noticias.length()-1].getTitulo()) noticias + Noticia(titulo, detalle, publicacion, buscar_autor(dni_autor), buscar_comentarios(numero));
+                noticias + Noticia(titulo, detalle, publicacion, buscar_autor(dni_autor), buscar_comentarios(numero));
             }
             file.close();
         }
@@ -342,35 +375,16 @@ class Data_manager {
             throw RecordNotFound(titulo);
         }
 
-        // TODO: no se que tan bien implementado está esto :/
         bool aniadir_noticia(Noticia n) {
-            try {
-                buscar_noticia(n.getTitulo());
-                return false;
-            } catch (RecordNotFound& e) {
-                noticias + n;
-                return true;
-            }
+            return noticias + n;
         }
 
         bool aniadir_usuario(Usuario u) {
-            try {
-                buscar_usuario(u.getDNI());
-                return false;
-            } catch (RecordNotFound& e) {
-                usuarios + u;
-                return true;
-            }
+            return usuarios + u;
         }
 
         bool aniadir_autor(Autor a) {
-            try {
-                buscar_autor(a.getDNI());
-                return false;
-            } catch (RecordNotFound& e) {
-                autores + a;
-                return true;
-            }
+            return autores + a;
         }
 
         Arreglo<Usuario> getUsuarios() {return usuarios;}

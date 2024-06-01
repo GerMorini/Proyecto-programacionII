@@ -97,7 +97,7 @@ void test_aniadir_noticia() {
 void test_buscar_usuario_no_existente() {
     Data_manager dm;
     try {
-        dm.buscar_usuario(99999999);
+        dm.buscar_usuario(-1);
         assert(false);  // Debería lanzar una excepción
     } catch (const RecordNotFound& e) {
         assert(true);  // Se lanzó la excepción correcta
@@ -107,7 +107,7 @@ void test_buscar_usuario_no_existente() {
 void test_buscar_autor_no_existente() {
     Data_manager dm;
     try {
-        dm.buscar_autor(99999999);
+        dm.buscar_autor(-1);
         assert(false);  // Debería lanzar una excepción
     } catch (const RecordNotFound& e) {
         assert(true);  // Se lanzó la excepción correcta
@@ -126,12 +126,12 @@ void test_buscar_noticia_no_existente() {
 
 int main() {
     test_imprimir_datos();
-    // test_aniadir_usuario();
-    // test_aniadir_autor();
-    // test_aniadir_noticia();
-    // test_buscar_usuario_no_existente();
-    // test_buscar_autor_no_existente();
-    // test_buscar_noticia_no_existente();
+    test_aniadir_usuario();
+    test_aniadir_autor();
+    test_aniadir_noticia();
+    test_buscar_usuario_no_existente();
+    test_buscar_autor_no_existente();
+    test_buscar_noticia_no_existente();
 
     cout << "Todos los tests pasaron exitosamente." << endl;
     return 0;
