@@ -1,5 +1,0 @@
-# Autores
-
-- Iván
-- German
-- Juan

@@ -46,9 +46,16 @@ class Arreglo {
             return false;
         }
 
-        T operator[](int n) {
+        /* TODO: por esto no se guardaban los comentarios, porque no se usaba un puntero
+            cuando buscaba la noticia para comentarla se retornaba una copia de la misma
+            entonces, el comentario se guardaba en la copia y no en la noticia guardada
+            en el arreglo
+
+            culpa de esto tuve que poner '->' en todos lados, hay que preguntar si se puede
+        */
+        T* operator[](int n) {
             if (n < 0) n = 0;
-            return arr[n];
+            return &arr[n];
         }
 
         bool operator^(T elem) {
@@ -150,10 +157,8 @@ class Noticia {
         Autor getAutor() {return autor;}
         Arreglo<Comentario> getComentarios() {return comentarios;}
 
-        void SetFecha(Fecha a){publicado = a;}
-        void comentar(Comentario com) {
-            comentarios + com;
-        }
+        void setFecha(Fecha a){publicado = a;}
+        void comentar(Comentario com) {comentarios + com;}
         int getCantidadComentarios() {return comentarios.length();}
 
         bool operator==(Noticia& n) {
@@ -208,7 +213,6 @@ class Data_manager {
                 file.ignore();
                 getline(file, nombre);
 
-                // if (dni != usuarios[usuarios.length()-1].getDNI()) usuarios + Usuario(nombre, dni, edad);
                 usuarios + Usuario(nombre, dni, edad);
             }
             file.close();
@@ -227,7 +231,6 @@ class Data_manager {
                 getline(file, nombre);
                 getline(file, medio);
 
-                // if (dni != autores[autores.length()-1].getDNI()) autores + Autor(nombre, dni, medio);
                 autores + Autor(nombre, dni, medio);
             }
             file.close();
@@ -246,7 +249,6 @@ class Data_manager {
                 file.ignore();
                 getline(file, texto);
 
-                // if (dni_usuario != comentarios[comentarios.length()-1].getUsuario().getDNI()) comentarios + Comentario(numero, texto, buscar_usuario(dni_usuario));
                 comentarios + Comentario(numero, texto, buscar_usuario(dni_usuario));
             }
             file.close();
@@ -270,7 +272,6 @@ class Data_manager {
                 getline(file, titulo);
                 getline(file, detalle);
 
-                // if (titulo != noticias[noticias.length()-1].getTitulo()) noticias + Noticia(titulo, detalle, publicacion, buscar_autor(dni_autor), buscar_comentarios(numero));
                 noticias + Noticia(titulo, detalle, publicacion, buscar_autor(dni_autor), buscar_comentarios(numero));
             }
             file.close();
@@ -281,9 +282,9 @@ class Data_manager {
             if(!file.is_open()) throw FileOpenException(USERS_PATH);
 
             for (int i = 0; i < usuarios.length(); i++) {
-                file << usuarios[i].getEdad() << " "
-                << usuarios[i].getDNI() << " "
-                << usuarios[i].getNombre() << endl;
+                file << usuarios[i]->getEdad() << " "
+                << usuarios[i]->getDNI() << " "
+                << usuarios[i]->getNombre() << endl;
             }
 
             file.close();
@@ -294,9 +295,9 @@ class Data_manager {
             if(!file.is_open()) throw FileOpenException(AUTHORS_PATH);
 
             for (int i = 0; i < autores.length(); i++) {
-                file << autores[i].getDNI() << endl
-                << autores[i].getNombre() << endl
-                << autores[i].getMedio() << endl;
+                file << autores[i]->getDNI() << endl
+                << autores[i]->getNombre() << endl
+                << autores[i]->getMedio() << endl;
             }
 
             file.close();
@@ -306,10 +307,14 @@ class Data_manager {
             ofstream file(COMMENTS_PATH);
             if(!file.is_open()) throw FileOpenException(COMMENTS_PATH);
 
-            for (int i = 0; i < comentarios.length(); i++) {
-                file << comentarios[i].getNumero() << " "
-                << comentarios[i].getUsuario().getDNI() << " "
-                << comentarios[i].getTexto() << endl;
+            for (int i = 0; i < noticias.length(); i++) {
+                Arreglo<Comentario> comms = noticias[i]->getComentarios();
+
+                for (int j = 0; j < comms.length(); j++) {
+                    file << comms[j]->getNumero() << " "
+                    << comms[j]->getUsuario().getDNI() << " "
+                    << comms[j]->getTexto() << endl;
+                }
             }
 
             file.close();
@@ -320,13 +325,13 @@ class Data_manager {
             if(!file.is_open()) throw FileOpenException(NEWS_PATH);
 
             for (int i = 0; i < noticias.length(); i++) {
-                file << noticias[i].getPublicado().dia << " "
-                << noticias[i].getPublicado().mes << " "
-                << noticias[i].getPublicado().anio << " "
-                << noticias[i].getAutor().getDNI() << " "
+                file << noticias[i]->getPublicado().dia << " "
+                << noticias[i]->getPublicado().mes << " "
+                << noticias[i]->getPublicado().anio << " "
+                << noticias[i]->getAutor().getDNI() << " "
                 << i+1 << endl
-                << noticias[i].getTitulo() << endl
-                << noticias[i].getDetalle() << endl;
+                << noticias[i]->getTitulo() << endl
+                << noticias[i]->getDetalle() << endl;
             }
 
             file.close();
@@ -343,8 +348,8 @@ class Data_manager {
             Arreglo<Comentario> resultados;
 
             for (int i = 0; i < comentarios.length(); i++) {
-                if(comentarios[i].getNumero() == numero) {
-                    resultados + comentarios[i];
+                if(comentarios[i]->getNumero() == numero) {
+                    resultados + *comentarios[i];
                 }
             }
 
@@ -353,7 +358,7 @@ class Data_manager {
 
         Usuario buscar_usuario(int dni) {
             for (int i = 0; i < usuarios.length(); i++) {
-                if(usuarios[i].getDNI() == dni) return usuarios[i];
+                if(usuarios[i]->getDNI() == dni) return *usuarios[i];
             }
 
             throw RecordNotFound(to_string(dni));
@@ -361,7 +366,7 @@ class Data_manager {
         
         Autor buscar_autor(int dni) {
             for (int i = 0; i < autores.length(); i++) {
-                if(autores[i].getDNI() == dni) return autores[i];
+                if(autores[i]->getDNI() == dni) return *autores[i];
             }
 
             throw RecordNotFound(to_string(dni));
@@ -369,7 +374,7 @@ class Data_manager {
 
         Noticia buscar_noticia(string titulo) {
             for (int i = 0; i < noticias.length(); i++) {
-                if(noticias[i].getTitulo() == titulo) return noticias[i];
+                if(noticias[i]->getTitulo() == titulo) return *noticias[i];
             }
 
             throw RecordNotFound(titulo);
@@ -402,27 +407,42 @@ class Data_manager {
 
 class NEWS {
     private:
-        Data_manager database;
+        Data_manager dm;
+        // TODO: preguntar como podemos hacer para no usar dos variables
+        Usuario loginUser;
+        Autor loginAuth;
     public:
         NEWS() {
-            database = Data_manager();
+            dm = Data_manager();
         }
 
-        Arreglo<Noticia> getNoticias() {return database.getNoticias();}
+        Arreglo<Noticia> getNoticias() {return dm.getNoticias();}
 
-        bool publicar(Noticia n) {
-            return database.aniadir_noticia(n);
+        bool publicar(string titulo, string detalle, Fecha publicacion) {
+            return dm.aniadir_noticia(Noticia(titulo, detalle, publicacion, loginAuth));
         }
 
         bool registrar_usuario(Usuario user) {
-            return database.aniadir_usuario(user);
+            return dm.aniadir_usuario(user);
         }
 
-        bool registrar_autor(Autor aut){
-            return database.aniadir_autor(aut);
+        bool registrar_autor(Autor aut) {
+            return dm.aniadir_autor(aut);
         }
+
+        void login_user(int dni) {
+            loginUser = dm.buscar_usuario(dni);
+        }
+
+        void login_autor(int dni) {
+            loginAuth = dm.buscar_autor(dni);
+        }
+
+        void comentar(int n, string txt) {
+            dm.getNoticias()[n-1]->comentar(Comentario(n, txt, loginUser));
+        } // los autores no comentan... UWU tit detalle publicacion
 
         ~NEWS() {
-            database.guardar_cambios();
+            dm.guardar_cambios();
         }
 };
