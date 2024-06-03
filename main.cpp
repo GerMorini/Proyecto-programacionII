@@ -10,7 +10,7 @@ using namespace std;
 void esperar(float segundos) {
     sleep(segundos);
 }
-
+//I was here
 int numero_validado(int min, int max){
     int x;
     cin >> x;
