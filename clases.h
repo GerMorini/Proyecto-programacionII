@@ -75,17 +75,11 @@ class Persona {
         Persona() {};
         Persona(string _nombre, int _dni) : nombre(_nombre), dni(_dni) {};
 
-        string getNombre() {
-            return nombre;
-        }
+        string getNombre();
 
-        int getDNI(){
-            return dni;
-        }
+        int getDNI();
 
-        bool operator==(Persona& p) {
-            return dni == p.dni;
-        }
+        bool operator==(Persona& p);
 };
 
 class Autor : public Persona {
@@ -95,7 +89,7 @@ class Autor : public Persona {
         Autor() {};
         Autor(string _nombre, int _dni, string _medio) : Persona(_nombre, _dni), medio(_medio) {};
 
-        string getMedio() {return medio;}
+        string getMedio();
 };
 
 class Usuario : public Persona {
@@ -105,7 +99,7 @@ class Usuario : public Persona {
         Usuario() {};
         Usuario(string _nombre, int _dni, int _edad) : Persona(_nombre, _dni), edad(_edad) {};
 
-        int getEdad() {return edad;}
+        int getEdad();
 };
 
 class Comentario {
@@ -117,13 +111,11 @@ class Comentario {
         Comentario() {};
         Comentario(int _numero, string _texto, Usuario _usuario) : numero(_numero), texto(_texto), usuario(_usuario) {};
 
-        int getNumero() {return numero;}
-        string getTexto() {return texto;}
-        Usuario getUsuario() {return usuario;}
+        int getNumero();
+        string getTexto();
+        Usuario getUsuario();
 
-        bool operator==(Comentario& com) {
-            return texto == com.texto;
-        }
+        bool operator==(Comentario& com);
 };
 
 class Noticia {
@@ -151,19 +143,17 @@ class Noticia {
             comentarios = _comentarios;
         };
 
-        string getTitulo() {return titulo;}
-        string getDetalle() {return detalle;}
-        Fecha getPublicado() {return publicado;}
-        Autor getAutor() {return autor;}
-        Arreglo<Comentario> getComentarios() {return comentarios;}
+        string getTitulo();
+        string getDetalle();
+        Fecha getPublicado();
+        Autor getAutor();
+        Arreglo<Comentario> getComentarios();
 
-        void setFecha(Fecha a){publicado = a;}
-        void comentar(Comentario com) {comentarios + com;}
-        int getCantidadComentarios() {return comentarios.length();}
+        void setFecha(Fecha a);
+        void comentar(Comentario com);
+        int getCantidadComentarios();
 
-        bool operator==(Noticia& n) {
-            return titulo == n.titulo;
-        }
+        bool operator==(Noticia& n);
 };
 
 class FileOpenException : public exception {
@@ -200,142 +190,22 @@ class Data_manager {
         string COMMENTS_PATH = "comentarios.csv";
         string NEWS_PATH = "noticias.csv";
 
-        void cargar_usuarios() {
-            ifstream file(USERS_PATH);
-            if(!file) throw FileOpenException(USERS_PATH);
+        void cargar_usuarios();
 
-            string nombre;
-            int dni, edad;
+        void cargar_autores();
 
-            while(!file.eof()) {
-                file >> edad;
-                file >> dni;
-                file.ignore();
-                getline(file, nombre);
+        void cargar_comentarios();
 
-                usuarios + Usuario(nombre, dni, edad);
-            }
-            file.close();
-        }
+        void cargar_noticias();
 
-        void cargar_autores() {
-            ifstream file(AUTHORS_PATH);
-            if(!file) throw FileOpenException(AUTHORS_PATH);
-
-            string nombre, medio;
-            int dni;
-
-            while(!file.eof()) {
-                file >> dni;
-                file.ignore();
-                getline(file, nombre);
-                getline(file, medio);
-
-                autores + Autor(nombre, dni, medio);
-            }
-            file.close();
-        }
-
-        void cargar_comentarios() {
-            ifstream file(COMMENTS_PATH);
-            if(!file) throw FileOpenException(COMMENTS_PATH);
-
-            string texto;
-            int numero, dni_usuario;
-            
-            while(!file.eof()) {
-                file >> numero;
-                file >> dni_usuario;
-                file.ignore();
-                getline(file, texto);
-
-                comentarios + Comentario(numero, texto, buscar_usuario(dni_usuario));
-            }
-            file.close();
-        }
-
-        void cargar_noticias() {
-            ifstream file(NEWS_PATH);
-            if(!file) throw FileOpenException(NEWS_PATH);
-
-            string titulo, detalle;
-            Fecha publicacion;
-            int dni_autor, numero;
-
-            while(!file.eof()) {
-                file >> publicacion.dia;
-                file >> publicacion.mes;
-                file >> publicacion.anio;
-                file >> dni_autor;
-                file >> numero;
-                file.ignore();
-                getline(file, titulo);
-                getline(file, detalle);
-
-                noticias + Noticia(titulo, detalle, publicacion, buscar_autor(dni_autor), buscar_comentarios(numero));
-            }
-            file.close();
-        }
-
-        void guardar_usuarios() {
-            ofstream file(USERS_PATH);
-            if(!file.is_open()) throw FileOpenException(USERS_PATH);
-
-            for (int i = 0; i < usuarios.length(); i++) {
-                file << usuarios[i]->getEdad() << " "
-                << usuarios[i]->getDNI() << " "
-                << usuarios[i]->getNombre() << endl;
-            }
-
-            file.close();
-        }
+        void guardar_usuarios();
         
-        void guardar_autores() {
-            ofstream file(AUTHORS_PATH);
-            if(!file.is_open()) throw FileOpenException(AUTHORS_PATH);
+        void guardar_autores();
 
-            for (int i = 0; i < autores.length(); i++) {
-                file << autores[i]->getDNI() << endl
-                << autores[i]->getNombre() << endl
-                << autores[i]->getMedio() << endl;
-            }
+        void guardar_comentarios();
 
-            file.close();
-        }
-
-        void guardar_comentarios() {
-            ofstream file(COMMENTS_PATH);
-            if(!file.is_open()) throw FileOpenException(COMMENTS_PATH);
-
-            for (int i = 0; i < noticias.length(); i++) {
-                Arreglo<Comentario> comms = noticias[i]->getComentarios();
-
-                for (int j = 0; j < comms.length(); j++) {
-                    file << comms[j]->getNumero() << " "
-                    << comms[j]->getUsuario().getDNI() << " "
-                    << comms[j]->getTexto() << endl;
-                }
-            }
-
-            file.close();
-        }
-
-        void guardar_noticias() {
-            ofstream file(NEWS_PATH);
-            if(!file.is_open()) throw FileOpenException(NEWS_PATH);
-
-            for (int i = 0; i < noticias.length(); i++) {
-                file << noticias[i]->getPublicado().dia << " "
-                << noticias[i]->getPublicado().mes << " "
-                << noticias[i]->getPublicado().anio << " "
-                << noticias[i]->getAutor().getDNI() << " "
-                << i+1 << endl
-                << noticias[i]->getTitulo() << endl
-                << noticias[i]->getDetalle() << endl;
-            }
-
-            file.close();
-        }
+        void guardar_noticias();
+        
     public:
         Data_manager() {
             cargar_usuarios();
@@ -344,65 +214,26 @@ class Data_manager {
             cargar_noticias();
         }
 
-        Arreglo<Comentario> buscar_comentarios(int numero) {
-            Arreglo<Comentario> resultados;
+        Arreglo<Comentario> buscar_comentarios(int numero);
 
-            for (int i = 0; i < comentarios.length(); i++) {
-                if(comentarios[i]->getNumero() == numero) {
-                    resultados + *comentarios[i];
-                }
-            }
-
-            return resultados;
-        }
-
-        Usuario buscar_usuario(int dni) {
-            for (int i = 0; i < usuarios.length(); i++) {
-                if(usuarios[i]->getDNI() == dni) return *usuarios[i];
-            }
-
-            throw RecordNotFound(to_string(dni));
-        }
+        Usuario buscar_usuario(int dni);
         
-        Autor buscar_autor(int dni) {
-            for (int i = 0; i < autores.length(); i++) {
-                if(autores[i]->getDNI() == dni) return *autores[i];
-            }
+        Autor buscar_autor(int dni);
 
-            throw RecordNotFound(to_string(dni));
-        }
+        Noticia buscar_noticia(string titulo);
 
-        Noticia buscar_noticia(string titulo) {
-            for (int i = 0; i < noticias.length(); i++) {
-                if(noticias[i]->getTitulo() == titulo) return *noticias[i];
-            }
+        bool aniadir_noticia(Noticia n);
 
-            throw RecordNotFound(titulo);
-        }
+        bool aniadir_usuario(Usuario u);
 
-        bool aniadir_noticia(Noticia n) {
-            return noticias + n;
-        }
+        bool aniadir_autor(Autor a);
 
-        bool aniadir_usuario(Usuario u) {
-            return usuarios + u;
-        }
+        Arreglo<Usuario> getUsuarios();
+        Arreglo<Autor> getAutores();
+        Arreglo<Comentario> getComentarios();
+        Arreglo<Noticia> getNoticias();
 
-        bool aniadir_autor(Autor a) {
-            return autores + a;
-        }
-
-        Arreglo<Usuario> getUsuarios() {return usuarios;}
-        Arreglo<Autor> getAutores() {return autores;}
-        Arreglo<Comentario> getComentarios() {return comentarios;}
-        Arreglo<Noticia> getNoticias() {return noticias;}
-
-        void guardar_cambios() {
-            guardar_usuarios();
-            guardar_autores();
-            guardar_comentarios();
-            guardar_noticias();
-        }
+        void guardar_cambios();
 };
 
 class NEWS {
