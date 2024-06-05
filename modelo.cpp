@@ -14,25 +14,41 @@ bool Persona::operator==(Persona& p) {
     return dni == p.dni;
 }
 
-//Autor
+// AUTOR
 
 string Autor::getMedio() {return medio;}
 
-//Usuario
+// USUARIO
 
 int Usuario::getEdad() {return edad;}
 
-//Comentario
+// COMENTARIO
 
 int Comentario::getNumero() {return numero;}
 string Comentario::getTexto() {return texto;}
 Usuario Comentario::getUsuario() {return usuario;}
 
 bool Comentario::operator==(Comentario& com) {
-    return texto == com.texto;
+    return numero == com.numero and texto == com.texto and usuario.getDNI() == com.usuario.getDNI();
 }
 
-//Noticia
+// NOTICIA
+
+Noticia::Noticia(string _titulo, string _detalle, Fecha _publicacion, Autor _autor) {
+    titulo = _titulo;
+    detalle = _detalle;
+    publicado = _publicacion;
+    autor = _autor;
+    comentarios = Arreglo<Comentario>(); // TODO: ¿se puede instanciar así?
+};
+
+Noticia::Noticia(string _titulo, string _detalle, Fecha _publicacion, Autor _autor, Arreglo<Comentario> _comentarios) {
+    titulo = _titulo;
+    detalle = _detalle;
+    publicado = _publicacion;
+    autor = _autor;
+    comentarios = _comentarios;
+};
 
 string Noticia::getTitulo() {return titulo;}
 string Noticia::getDetalle() {return detalle;}
@@ -41,7 +57,7 @@ Autor Noticia::getAutor() {return autor;}
 Arreglo<Comentario> Noticia::getComentarios() {return comentarios;}
 
 void Noticia::setFecha(Fecha a){publicado = a;}
-void Noticia::comentar(Comentario com) {comentarios + com;}
+bool Noticia::comentar(Comentario com) {return comentarios + com;}
 int Noticia::getCantidadComentarios() {return comentarios.length();}
 
 bool Noticia::operator==(Noticia& n) {

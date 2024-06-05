@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <exception>
 #include <iostream>
 #include <fstream>
@@ -10,6 +9,7 @@ struct Fecha {
     int dia, mes, anio;
 };
 
+// FIXME: traté de moverlo a 'modelo.cpp', pero arroja errores al compilar
 template<class T>
 class Arreglo {
     private:
@@ -46,13 +46,6 @@ class Arreglo {
             return false;
         }
 
-        /* TODO: por esto no se guardaban los comentarios, porque no se usaba un puntero
-            cuando buscaba la noticia para comentarla se retornaba una copia de la misma
-            entonces, el comentario se guardaba en la copia y no en la noticia guardada
-            en el arreglo
-
-            culpa de esto tuve que poner '->' en todos lados, hay que preguntar si se puede
-        */
         T* operator[](int n) {
             if (n < 0) n = 0;
             return &arr[n];
@@ -62,7 +55,7 @@ class Arreglo {
             for (int i = 0; i < len; i++) {
                 if (arr[i] == elem) return true;            
             }
-            
+
             return false;
         }
 };
@@ -127,21 +120,8 @@ class Noticia {
         
     public:
         Noticia() {};
-        Noticia(string _titulo, string _detalle, Fecha _publicacion, Autor _autor) {
-            titulo = _titulo;
-            detalle = _detalle;
-            publicado = _publicacion;
-            autor = _autor;
-            comentarios = Arreglo<Comentario>(); // TODO: ¿se puede instanciar así?
-        };
-        
-        Noticia(string _titulo, string _detalle, Fecha _publicacion, Autor _autor, Arreglo<Comentario> _comentarios) {
-            titulo = _titulo;
-            detalle = _detalle;
-            publicado = _publicacion;
-            autor = _autor;
-            comentarios = _comentarios;
-        };
+        Noticia(string _titulo, string _detalle, Fecha _publicacion, Autor _autor);
+        Noticia(string _titulo, string _detalle, Fecha _publicacion, Autor _autor, Arreglo<Comentario> _comentarios);
 
         string getTitulo();
         string getDetalle();
@@ -150,7 +130,7 @@ class Noticia {
         Arreglo<Comentario> getComentarios();
 
         void setFecha(Fecha a);
-        void comentar(Comentario com);
+        bool comentar(Comentario com);
         int getCantidadComentarios();
 
         bool operator==(Noticia& n);
@@ -160,20 +140,16 @@ class FileOpenException : public exception {
     private:
         string msg;
     public:
-        FileOpenException(string _msg) {
-            msg = "no se pudo abrir el archivo '" + _msg + "'";
-        }
+        FileOpenException(string _msg) : msg(_msg) {}
 
         string getMessage() {return msg;}
 };
 
-class RecordNotFound : public exception {
+class RecordNotFoundException : public exception {
     private:
         string msg;
     public:
-        RecordNotFound(string _msg) {
-            msg = "no se encontró registro para el dato '" + _msg + "'";
-        }
+        RecordNotFoundException(string _msg) : msg(_msg) {}
         
         string getMessage() {return msg;}
 };
@@ -207,12 +183,12 @@ class Data_manager {
         void guardar_noticias();
         
     public:
-        Data_manager() {
-            cargar_usuarios();
-            cargar_autores();
-            cargar_comentarios();
-            cargar_noticias();
-        }
+        Data_manager();
+
+        Arreglo<Usuario> getUsuarios();
+        Arreglo<Autor> getAutores();
+        Arreglo<Comentario> getComentarios();
+        Arreglo<Noticia> getNoticias();
 
         Arreglo<Comentario> buscar_comentarios(int numero);
 
@@ -228,11 +204,6 @@ class Data_manager {
 
         bool aniadir_autor(Autor a);
 
-        Arreglo<Usuario> getUsuarios();
-        Arreglo<Autor> getAutores();
-        Arreglo<Comentario> getComentarios();
-        Arreglo<Noticia> getNoticias();
-
         void guardar_cambios();
 };
 
@@ -243,37 +214,22 @@ class NEWS {
         Usuario loginUser;
         Autor loginAuth;
     public:
-        NEWS() {
-            dm = Data_manager();
-        }
+        NEWS();
 
-        Arreglo<Noticia> getNoticias() {return dm.getNoticias();}
+        Arreglo<Noticia> getNoticias();
+        Arreglo<Autor> getAutores();
 
-        bool publicar(string titulo, string detalle, Fecha publicacion) {
-            return dm.aniadir_noticia(Noticia(titulo, detalle, publicacion, loginAuth));
-        }
+        bool publicar(string titulo, string detalle, Fecha publicacion);
 
-        bool registrar_usuario(Usuario user) {
-            return dm.aniadir_usuario(user);
-        }
+        bool registrar_usuario(Usuario user);
 
-        bool registrar_autor(Autor aut) {
-            return dm.aniadir_autor(aut);
-        }
+        bool registrar_autor(Autor aut);
 
-        void login_user(int dni) {
-            loginUser = dm.buscar_usuario(dni);
-        }
+        bool comentar(int n, string txt);
 
-        void login_autor(int dni) {
-            loginAuth = dm.buscar_autor(dni);
-        }
+        void login_user(int dni);
 
-        void comentar(int n, string txt) {
-            dm.getNoticias()[n-1]->comentar(Comentario(n, txt, loginUser));
-        } // los autores no comentan... UWU tit detalle publicacion
+        void login_autor(int dni);
 
-        ~NEWS() {
-            dm.guardar_cambios();
-        }
+        ~NEWS();
 };

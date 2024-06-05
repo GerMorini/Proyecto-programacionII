@@ -1,5 +1,16 @@
-
 #include"clases.h"
+
+Data_manager::Data_manager() {
+    cargar_usuarios();
+    cargar_autores();
+    cargar_comentarios();
+    cargar_noticias();
+}
+
+Arreglo<Usuario> Data_manager::getUsuarios() {return usuarios;}
+Arreglo<Autor> Data_manager::getAutores() {return autores;}
+Arreglo<Comentario> Data_manager::getComentarios() {return comentarios;}
+Arreglo<Noticia> Data_manager::getNoticias() {return noticias;}
 
 void Data_manager::cargar_usuarios() {
     ifstream file(USERS_PATH);
@@ -137,13 +148,6 @@ void Data_manager::guardar_noticias() {
 
     file.close();
 }
-public:
-Data_manager() {
-    cargar_usuarios();
-    cargar_autores();
-    cargar_comentarios();
-    cargar_noticias();
-}
 
 Arreglo<Comentario> Data_manager::buscar_comentarios(int numero) {
     Arreglo<Comentario> resultados;
@@ -162,7 +166,7 @@ Usuario Data_manager::buscar_usuario(int dni) {
         if(usuarios[i]->getDNI() == dni) return *usuarios[i];
     }
 
-    throw RecordNotFound(to_string(dni));
+    throw RecordNotFoundException("no se encontró un usuario con DNI '" + to_string(dni) + "'");
 }
 
 Autor Data_manager::buscar_autor(int dni) {
@@ -170,7 +174,7 @@ Autor Data_manager::buscar_autor(int dni) {
         if(autores[i]->getDNI() == dni) return *autores[i];
     }
 
-    throw RecordNotFound(to_string(dni));
+    throw RecordNotFoundException("no se encontró un autor con DNI '" + to_string(dni) + "'");
 }
 
 Noticia Data_manager::buscar_noticia(string titulo) {
@@ -178,7 +182,7 @@ Noticia Data_manager::buscar_noticia(string titulo) {
         if(noticias[i]->getTitulo() == titulo) return *noticias[i];
     }
 
-    throw RecordNotFound(titulo);
+    throw RecordNotFoundException("no se encontró una noticia titulada '" + titulo + "'");
 }
 
 bool Data_manager::aniadir_noticia(Noticia n) {
@@ -192,11 +196,6 @@ bool Data_manager::aniadir_usuario(Usuario u) {
 bool Data_manager::aniadir_autor(Autor a) {
     return autores + a;
 }
-
-Arreglo<Usuario> Data_manager::getUsuarios() {return usuarios;}
-Arreglo<Autor> Data_manager::getAutores() {return autores;}
-Arreglo<Comentario> Data_manager::getComentarios() {return comentarios;}
-Arreglo<Noticia> Data_manager::getNoticias() {return noticias;}
 
 void Data_manager::guardar_cambios() {
     guardar_usuarios();

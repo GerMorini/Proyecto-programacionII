@@ -10,7 +10,7 @@ using namespace std;
 void esperar(float segundos) {
     sleep(segundos);
 }
-//I was here
+
 int numero_validado(int min, int max){
     int x;
     cin >> x;
@@ -120,7 +120,7 @@ void cargarNoticia(NEWS &news) {
     if (news.publicar(titulo, detalle, publicacion)) {
         cout << "✅ Noticia publicada con éxito" << endl;
     } else {
-        cout << "❌ La noticia ya está registrada\n";
+        cout << "⚠️ La noticia ya está registrada\n";
     }
 }
 
@@ -140,15 +140,19 @@ void registrarComentario(NEWS &news) {
 
     cout << "Publicando comentario..." << endl;
     esperar(2);
-    news.comentar(opt, texto); // se comenta
-    cout << "Comentario registrado con éxito " << endl;
+    if(news.comentar(opt, texto)) {
+        cout << "✅ Comentario registrado con éxito" << endl;
+    } else {
+        cout << "⚠️ No está permitido hacer spam" << endl;
+    }
 }
 
 void listarNoticiasPorAno(NEWS &news, int anio) {
-    cout << "Noticias publicadas en el año " << anio << endl;
+    cout << "Noticias publicadas en el año " << anio << ":" << endl;
     for (int i = 0; i < news.getNoticias().length(); ++i) {
         if (news.getNoticias()[i]->getPublicado().anio == anio) {
-            cout << "\t[" << i+1 << "] " << news.getNoticias()[i]->getTitulo() << "\n";
+            cout << "\t" << i+1 << ") " << news.getNoticias()[i]->getTitulo() << " ("
+            << news.getNoticias()[i]->getAutor().getNombre() << ")" << "\n";
         }
     }
 }
@@ -165,17 +169,20 @@ void listarNoticiasUltimoMes(NEWS &news) {
         Fecha fecha = news.getNoticias()[i]->getPublicado();
 
         if (fecha.anio == currentYear && fecha.mes == currentMonth) {
-            cout << "\t[" << i+1 << "] " << news.getNoticias()[i]->getTitulo() << "\n";
+            cout << "\t" << i+1 << ") " << news.getNoticias()[i]->getTitulo() << " ("
+            << news.getNoticias()[i]->getAutor().getNombre() << ")" << "\n";
         }
     }
 }
 
 void mostrarNoticiaConComentarios(NEWS &news, int noticiaId) {
     Noticia noticia = *news.getNoticias()[noticiaId];
-    cout << "Título: " << noticia.getTitulo() << "\n";
-    cout << "Comentarios:\n";
+    cout << "\t" << noticia.getTitulo() << " (Por " + noticia.getAutor().getNombre() << ")" << endl;
+    cout << "\t\t" << noticia.getDetalle() << endl;
+    cout << "\t" << "Comentarios:" << endl;
     for (int i = 0; i < noticia.getCantidadComentarios(); i++) {
-        cout << "\t[" << noticia.getComentarios()[i]->getUsuario().getNombre() << "] " << noticia.getComentarios()[i]->getTexto() << "\n";
+        cout << "\t\t(" << noticia.getComentarios()[i]->getUsuario().getNombre() << ") "
+        <<"\n\t\t\t" << noticia.getComentarios()[i]->getTexto() << "\n";
     }
 }
 
@@ -183,7 +190,7 @@ void listarArticulosPorAutor(NEWS &news, string autorNombre) {
     cout << "Artículos publicados escritos por " << autorNombre << ":\n";
     for (int i = 0; i < news.getNoticias().length(); ++i) {
         if (news.getNoticias()[i]->getAutor().getNombre() == autorNombre) {
-            cout << "\t" << i+1 << ". " << news.getNoticias()[i]->getTitulo() << "\n";
+            cout << "\t" << i+1 << ") " << news.getNoticias()[i]->getTitulo() << "\n";
         }
     }
 }
@@ -193,14 +200,16 @@ int main() {
     esperar(2);
     int option, dni;
     string nombre;
+    // TODO: acá habría que capturar el 'RecordNotFound'
     NEWS news;
     bool loggeado = 0;
 
     while (!loggeado) {
         cout << "Iniciar sesion: " << endl;
-        cout << "[1] Usuario" << endl;
-        cout << "[2] Autor" << endl;
-        cout << "[3] Salir" << endl;
+        cout << "\t[1] Usuario" << endl;
+        cout << "\t[2] Autor" << endl;
+        cout << "\t[3] Salir" << endl;
+        cout << ">> ";
         option = numero_validado(1, 3);
         switch (option)
         {
@@ -211,8 +220,7 @@ int main() {
 
                 news.login_user(dni);
                 loggeado = 1;
-
-            } catch(RecordNotFound& e) {
+            } catch(RecordNotFoundException& e) {
                 cout << "❌ Usuario no registrado\n";
             }
             break;
@@ -223,7 +231,7 @@ int main() {
 
                 news.login_autor(dni);
                 loggeado = 1;
-            } catch(RecordNotFound& e) {
+            } catch(RecordNotFoundException& e) {
                 cout << "❌ Autor no registrado\n";
             }
             break;
@@ -248,7 +256,7 @@ int main() {
         cout << "7. Mostrar Noticia y Comentarios\n";
         cout << "8. Listar Artículos por Autor\n";
         cout << "9. Salir\n";
-        cout << "Seleccione una opción: ";
+        cout << ">> ";
         option = numero_validado(1, 9);
 
         switch (option) {
@@ -280,8 +288,9 @@ int main() {
             case 7: {
                 cout << "Elige la noticia a mostrar: " << endl;
                 for (int i = 0; i < news.getNoticias().length(); i++){
-                    cout << "[" << i+1 << "] " << news.getNoticias()[i]->getTitulo() << endl;
+                    cout << "\t[" << i+1 << "] " << news.getNoticias()[i]->getTitulo() << endl;
                 }
+                cout << ">> ";
                 int opt = numero_validado(1, news.getNoticias().length());
 
                 cout << "Recopilando información..." << endl;
@@ -290,14 +299,16 @@ int main() {
                 break;
             }
             case 8: {
-                string autorNombre;
-                cout << "Ingrese el nombre del autor: ";
-                cin.ignore();
-                getline(cin, autorNombre);
+                cout << "Elige un autor: " << endl;
+                for (int i = 0; i < news.getAutores().length(); i++){
+                    cout << "\t[" << i+1 << "] " << news.getAutores()[i]->getNombre() << " (" << news.getAutores()[i]->getMedio() << ")" << endl;
+                }
+                cout << ">> ";
+                int opt = numero_validado(1, news.getAutores().length());
 
                 cout << "Buscando artículos..." << endl;
                 esperar(2);
-                listarArticulosPorAutor(news, autorNombre);
+                listarArticulosPorAutor(news, news.getAutores()[opt-1]->getNombre());
                 break;
             }
             case 9:
@@ -307,6 +318,4 @@ int main() {
                 cout << "❌ Opción no válida.\n";
         }
     }
-
-    return 0;
 }
