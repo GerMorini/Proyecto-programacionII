@@ -159,15 +159,15 @@ void listarNoticiasPorAno(NEWS &news, int anio) {
 
 void listarNoticiasUltimoMes(NEWS &news) {
     time_t t = time(nullptr);
-    tm *current = localtime(&t);
-    int currentMonth = current->tm_mon + 1;
-    int currentYear = current->tm_year + 1900;
+    tm *ahora = localtime(&t);
+    int esteMes = ahora->tm_mon + 1;
+    int esteAnio = ahora->tm_year + 1900;
 
     cout << "Noticias publicadas el último mes:\n";
     for (int i = 0; i < news.getNoticias().length(); ++i) {
         Fecha fecha = news.getNoticias()[i]->getPublicado();
 
-        if (fecha.anio == currentYear && fecha.mes == currentMonth) {
+        if (fecha.anio == esteAnio && fecha.mes == esteMes) {
             cout << "\t" << i+1 << ") " << news.getNoticias()[i]->getTitulo() << " ("
             << news.getNoticias()[i]->getAutor().getNombre() << ")" << "\n";
         }
