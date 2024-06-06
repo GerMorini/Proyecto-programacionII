@@ -202,7 +202,7 @@ int main() {
     // TODO: acá habría que capturar el 'RecordNotFound'
     NEWS news;
     bool loggeado = 0;
-
+    bool esAutor = 0;
     while (!loggeado) {
         cout << "Iniciar sesion: " << endl;
         cout << "\t[1] Usuario" << endl;
@@ -219,6 +219,7 @@ int main() {
 
                 news.login_user(dni);
                 loggeado = 1;
+                esAutor = 0;
             } catch(RecordNotFoundException& e) {
                 cout << "❌ Usuario no registrado\n";
             }
@@ -230,6 +231,7 @@ int main() {
 
                 news.login_autor(dni);
                 loggeado = 1;
+                esAutor = 1;
             } catch(RecordNotFoundException& e) {
                 cout << "❌ Autor no registrado\n";
             }
@@ -248,8 +250,8 @@ int main() {
         cout << "\nMenu:\n";
         cout << "1. Registro de Autores\n";
         cout << "2. Registro de Usuarios\n";
-        cout << "3. Carga de Noticias\n";
-        cout << "4. Registro de Comentarios\n";
+        cout << "3. Carga de Noticias (Solo autores)\n";
+        cout << "4. Registro de Comentarios (Solo usuarios)\n";
         cout << "5. Listar Noticias por Año\n";
         cout << "6. Listar Noticias del Último Mes\n";
         cout << "7. Mostrar Noticia y Comentarios\n";
@@ -266,9 +268,17 @@ int main() {
                 registrarUsuario(news);
                 break;
             case 3:
-                cargarNoticia(news);
+                if (esAutor) {
+                    cargarNoticia(news);
+                    break;
+                }
+                cout<<"Los usuarios no pueden comentar\n";
                 break;
             case 4:
+                if (esAutor) {
+                    cout<<"Los autores no pueden comentar"<<endl;
+                    break;
+                }
                 registrarComentario(news);
                 break;
             case 5: {
