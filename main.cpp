@@ -268,15 +268,15 @@ int main() {
                 registrarUsuario(news);
                 break;
             case 3:
-                if (esAutor) {
-                    cargarNoticia(news);
+                if (!esAutor) {
+                    cout << "🚫 Los usuarios no pueden publicar noticias" << endl;
                     break;
                 }
-                cout<<"Los usuarios no pueden comentar\n";
+                cargarNoticia(news);
                 break;
             case 4:
                 if (esAutor) {
-                    cout<<"Los autores no pueden comentar"<<endl;
+                    cout << "🚫 Los autores no pueden comentar" << endl;
                     break;
                 }
                 registrarComentario(news);
