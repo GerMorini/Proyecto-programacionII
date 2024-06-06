@@ -158,7 +158,6 @@ void listarNoticiasPorAno(NEWS &news, int anio) {
 }
 
 void listarNoticiasUltimoMes(NEWS &news) {
-    // TODO: ¿que hay con esto? se re nota que se hizo con el Chat
     time_t t = time(nullptr);
     tm *current = localtime(&t);
     int currentMonth = current->tm_mon + 1;
@@ -287,11 +286,12 @@ int main() {
                 break;
             case 7: {
                 cout << "Elige la noticia a mostrar: " << endl;
-                for (int i = 0; i < news.getNoticias().length(); i++){
+                int l = news.getNoticias().length();
+                for (int i = 0; i < l; i++){
                     cout << "\t[" << i+1 << "] " << news.getNoticias()[i]->getTitulo() << endl;
                 }
                 cout << ">> ";
-                int opt = numero_validado(1, news.getNoticias().length());
+                int opt = numero_validado(1, l);
 
                 cout << "Recopilando información..." << endl;
                 esperar(2);
